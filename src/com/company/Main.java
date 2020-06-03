@@ -15,6 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -34,25 +35,27 @@ public class Main extends Application {
     List<Virus> viruses;
     private int score;
     boolean gameOver = false;
-    final int MAX_VIRUS = 10;
+    final int MAX_VIRUS = 7;
     final int MAX_SHOTS = MAX_VIRUS * 2;
 
     //IMAGES
     static final Image PLAYER_IMG = new Image("file:img/nurse.png");
     static final Image SICKPLAYER_IMG = new Image("file:img/nurse_sick.png");
-    static final Image SYRINGE_IMG = new Image("file:img/syringe.png");
+    static final Image SYRINGE1_IMG = new Image("file:img/syringe1.png");
+    static final Image SYRINGE2_IMG = new Image("file:img/syringe2.png");
     static final Image VIRUS1_IMG = new Image("file:img/virus1.png");
     static final Image VIRUS2_IMG = new Image("file:img/virus2.png");
     static final Image VIRUS3_IMG = new Image("file:img/virus3.png");
     static final Image VIRUS4_IMG = new Image("file:img/virus4.png");
     static final Image EXPLOSION_IMG = new Image("file:img/explosion.png");
+    static final Image EARTH_IMG = new Image("file:img/earth.png");
     static final int EXPLOSION_STEPS = 15;
 
     //START
     public void start(Stage stage) throws Exception {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(100), e -> run(gc)));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
         canvas.setCursor(Cursor.MOVE);
@@ -66,7 +69,7 @@ public class Main extends Application {
         });
         setup();
         stage.setScene(new Scene(new StackPane(canvas)));
-        stage.setTitle("Corona VS Human");
+        stage.setTitle("Corona VS Humanity");
         stage.show();
     }
 
@@ -81,7 +84,7 @@ public class Main extends Application {
 
     //RUN GRAPHICS
     private void run(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);
+        gc.setFill(new ImagePattern(EARTH_IMG, 0, 0, 1, 1, true));
         gc.fillRect(0, 0, WIDTH, HEIGHT);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font(20));
@@ -89,8 +92,13 @@ public class Main extends Application {
         gc.fillText("Score: " + score, 60,  20);
 
         if(gameOver) {
+            for( int i = 0; i < viruses.size(); i++ ) {
+                viruses.get(i).SPEED = 0;
+            }
+            gc.setFill(Color.BLACK);
+            gc.fillRect(0, 0, WIDTH, HEIGHT);
             gc.setFont(Font.font(35));
-            gc.setFill(Color.YELLOW);
+            gc.setFill(Color.WHITE);
             gc.fillText("Game Over \n Your Score is: " + score + " \n Click to play again", WIDTH / 2, HEIGHT /2.5);
         }
 
@@ -187,7 +195,7 @@ public class Main extends Application {
     //CHILD Virus
     public class Virus extends MovingObject {
 
-        int SPEED = (score/5)+2;
+        double SPEED = (score/15) + 1;
 
         public Virus(int posX, int posY, int size, Image image) {
             super(posX, posY, size, image);
@@ -211,10 +219,10 @@ public class Main extends Application {
     //Shot SYRINGE
     public class Shot {
         public boolean toRemove;
-        Image image = SYRINGE_IMG;
+        Image image = SYRINGE1_IMG;
         int posX = (int)(image.getWidth() / 2);
         int posY = 300;
-        int speed = 10;
+        int speed = 3;
         static final int size = 6;
 
         public Shot(int posX, int posY) {
@@ -227,11 +235,11 @@ public class Main extends Application {
         }
 
         public void draw() {
-            gc.drawImage(SYRINGE_IMG, posX - 12 , posY, 30 , 90);
+            gc.drawImage(SYRINGE1_IMG, posX - 12 , posY, 30 , 90);
             gc.setFill(Color.TRANSPARENT);
-            if (score >=50 && score<=70 || score>=120) {
-                gc.setFill(Color.YELLOWGREEN);
-                speed = 50;
+            if ((score >=50 && score<=70) || (score >=100 && score<=120) || (score >=200 && score<=230)) {
+                gc.drawImage(SYRINGE2_IMG, posX - 12, posY, 30, 90);
+                speed = 7;
                 gc.fillRect(posX - 5, posY-10, size+10, size+30);
             } else {
                 gc.fillOval(posX, posY, size, size);
