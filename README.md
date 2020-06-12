@@ -1,4 +1,4 @@
-# Corona Vs. Humanity
+# Corona Vs. Humanity with JavaFX
 
 ---
 
